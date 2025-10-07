@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 255 255 255;
+  --text: 17 24 39; /* gray-900 */
+  --muted: 107 114 128; /* gray-500 */
+  --accent: 79 70 229; /* indigo-600 */
+  --surface: 247 250 252; /* gray-50 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 17 24 39; /* gray-900 */
+    --text: 243 244 246; /* gray-100 */
+    --muted: 156 163 175; /* gray-400 */
+    --accent: 99 102 241; /* indigo-500 */
+    --surface: 10 11 12;
+  }
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* small typographic scale and consistent spacing */
+h1 { font-size: 1.875rem; line-height:1.1; }
+h2 { font-size: 1.25rem; }
+p, input, button { line-height: 1.4 }
+
+.surface { background-color: rgb(var(--surface)); }
+.muted { color: rgb(var(--muted)); }
+.accent { color: rgb(var(--accent)); }
+
+/* theme helper: add .dark class to body for explicit control */
+body.dark {
+  filter: none;
+}
+
+/* Microinteraction: subtle button hover */
+button {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* Skeleton utility */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite linear;
+  background-color: rgba(0,0,0,0.06);
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0 }
+  100% { background-position: 200% 0 }
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  background: rgb(var(--accent));
+  color: white;
+  border-radius: 4px;
+  z-index: 60;
+}
+
+/* Focus visible for keyboard users */
+*:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 3px solid rgba(79,70,229,0.25);
+  outline-offset: 2px;
+}
+
+/* Motion-friendly utilities */
+.card {
+  transition: box-shadow 180ms ease, transform 160ms ease;
+}
+.card:hover { box-shadow: 0 10px 30px rgba(2,6,23,0.08); }
+.btn {
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+.btn:active { transform: translateY(1px) scale(0.995); }

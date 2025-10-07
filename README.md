@@ -1,0 +1,78 @@
+# VitaTrack
+
+Monorepo scaffold for VitaTrack: frontend (Next.js + Tailwind), backend Node (AI + Auth), backend Spring Boot (analytics). This scaffold contains placeholder code to get started.
+
+Run frontend:
+- cd frontend
+- npm install
+- npm run dev
+
+Run node backend (AI):
+- cd backend/node
+- npm install
+- set OPENAI_API_KEY=<key> (Windows PowerShell: $env:OPENAI_API_KEY = 'key')
+- npm run dev
+
+Run spring boot service:
+- cd backend/springboot
+- ./gradlew bootRun
+
+MongoDB:
+- Set MONGO_URI in backend/node/.env or use local MongoDB at mongodb://127.0.0.1:27017/vitatrack
+ 
+## Dev workflow (quick start)
+
+1. Install dependencies
+
+ - Frontend:
+ ```powershell
+ cd frontend; npm install
+ ```
+
+ - Backend (Node):
+ ```powershell
+ cd backend/node; npm install
+ ```
+
+2. Seed sample data (creates a demo user and two workouts)
+
+```powershell
+cd backend/node
+node seed.js
+```
+
+3. Start services
+
+ - Quick way: run the bundled PowerShell helper (Windows):
+
+```powershell
+.\start-all.ps1
+```
+
+This will open new PowerShell windows to start the Node backend and the Next frontend. The script attempts to start `mongod` if it's on your PATH; otherwise start MongoDB manually.
+
+4. Dev UI
+
+ - Open http://localhost:3000/dev to view seeded users, sample workouts, sample recipe and analytics proxy results.
+ - Use "Open Mock Login" to simulate logging in as a seeded user.
+
+5. Environment variables
+
+ - `OPENAI_API_KEY` — required if you want the AI route to call OpenAI.
+ - `MONGO_URI` — optional, defaults to mongodb://127.0.0.1:27017/vitatrack
+ - `SPRINGBOOT_URL` — optional, set to the Spring Boot analytics URL (default http://localhost:8080). If unset or unreachable, the analytics proxy returns mock data.
+
+Notes
+
+ - Dev-only endpoints live under `/api/debug`, `/api/workouts/sample`, `/api/recipes/sample`.
+ - The analytics proxy is at `/api/analytics/proxy/workouts/:userId` and will return either Spring data or mock analytics for development convenience.
+
+Troubleshooting
+
+- Port in use: If the backend or frontend fail to start because a port is in use, either stop the process using the port (Windows: use Task Manager or `Get-Process -Id (Get-NetTCPConnection -LocalPort 5001).OwningProcess`) or change PORT/META settings in `.env`.
+- Mongo not running: If the Node backend can't connect to Mongo, ensure `mongod` is running or set `MONGO_URI` to a reachable instance. Use `mongo` or MongoDB Compass to verify.
+- Spring Boot analytics: If you expect real analytics data, start the Spring Boot service and set `SPRINGBOOT_URL` to its base URL; otherwise the proxy returns mock data.
+- OpenAI: To enable actual recipe generation, set `OPENAI_API_KEY` in the backend environment.
+
+
+
