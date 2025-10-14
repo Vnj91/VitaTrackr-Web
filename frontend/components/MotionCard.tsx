@@ -2,9 +2,10 @@
 
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'
 
 export default function MotionCard({ children, className = '' }: { children: ReactNode; className?: string }) {
-  const prefersReduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const prefersReduced = usePrefersReducedMotion()
   const hover = prefersReduced ? {} : { y: -4, scale: 1.01 }
   const tap = prefersReduced ? {} : { scale: 0.995 }
 

@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret'
 const crypto = require('crypto')
-const User = require('../models/User')
 
 function hashToken(token){
   return crypto.createHash('sha256').update(token).digest('hex')

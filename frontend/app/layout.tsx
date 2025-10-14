@@ -3,7 +3,8 @@ import Navbar from '../components/Navbar'
 import PageTransition from '../components/PageTransition'
 // ToastContainer is a client component
 import dynamic from 'next/dynamic'
-const ToastContainer = dynamic(()=>import('../components/Toast').then(m=>m.ToastContainer), { ssr: false })
+// import the client wrapper which re-exports ToastContainer as default
+const ToastContainer = dynamic(() => import('../components/ToastClient'), { ssr: false })
 
 export const metadata = {
   title: 'VitaTrackr',

@@ -2,11 +2,13 @@
 
 import React, { useState } from 'react'
 import { useAuthViewModel } from '../../../viewmodels/useAuthViewModel'
+import { useRouter } from 'next/navigation'
 import LoadingSpinner from '../../../components/LoadingSpinner'
 import { toast } from '../../../components/Toast'
 
 export default function RegisterPage() {
   const { loading, error, register } = useAuthViewModel()
+  const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,15 +23,21 @@ export default function RegisterPage() {
       toast('Password must be at least 6 characters', 'error')
       return
     }
-    await register({ name, email, password })
-    toast('Account created', 'success')
+    const data = await register({ name, email, password })
+    if (data && data.token) {
+      toast('Account created — please sign in', 'success')
+      // redirect to login
+      router.push('/auth/login')
+    } else {
+      toast('Account created', 'success')
+    }
   }
 
   return (
     <div className="min-h-screen">
       <main className="max-w-md mx-auto p-6">
         <h1 className="text-2xl mb-4">Create account</h1>
-        <form onSubmit={onSubmit} className="surface p-4 rounded" aria-describedby="register-help">
+  <form onSubmit={onSubmit} className="surface p-4 rounded" aria-describedby="register-help">
           <label className="block">
             <span className="text-sm muted">Name</span>
             <input id="register-name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 block w-full border rounded p-2" />

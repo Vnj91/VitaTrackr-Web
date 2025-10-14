@@ -2,11 +2,16 @@
 
 import React, { useEffect, useState } from 'react'
 import StatCard from '../../components/StatCard'
+import Confetti from '../../components/Confetti'
+import LocalCountUp from '../../components/LocalCountUp'
+import MotionList from '../../components/MotionList'
+import MotionListItem from '../../components/MotionListItem'
 import WorkoutChart from '../../components/WorkoutChart'
 
 export default function DashboardPage(){
   const [analytics, setAnalytics] = useState<any | null>(null)
   const [chartData, setChartData] = useState<any[]>([])
+  const confettiRef = typeof window !== 'undefined' ? (document.querySelector('canvas[data-confetti]') as any | null) : null
 
   useEffect(()=>{
     // try to use logged-in user from localStorage
@@ -58,20 +63,35 @@ export default function DashboardPage(){
 
   return (
     <div className="min-h-screen p-6">
+      <Confetti />
       <main className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="surface p-4 rounded">
-            <StatCard value={analytics?.data?.weeklyAverageCalories ?? '—'} label="Avg cal / wk" />
-          </div>
-          <div className="surface p-4 rounded">
-            <StatCard value={analytics?.data?.workoutCountLast30Days ?? '—'} label="Workouts (30d)" />
-          </div>
-          <div className="surface p-4 rounded">
-            <StatCard value={chartData.length} label="Chart points" />
-          </div>
-        </div>
+          <MotionList className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <MotionListItem>
+            <div className="surface p-4 rounded">
+              <StatCard value={analytics?.data?.weeklyAverageCalories ?? '—'} label="Avg cal / wk" />
+            </div>
+          </MotionListItem>
+
+          <MotionListItem>
+            <div className="surface p-4 rounded">
+              <StatCard value={<LocalCountUp end={analytics?.data?.workoutCountLast30Days ?? 0} duration={0.9} onComplete={() => {
+                try {
+                  const el = document.querySelector('canvas[data-confetti]') as any
+                  const count = (analytics?.data?.workoutCountLast30Days || 0)
+                  if (el && el.start && count >= 10) el.start(36)
+                } catch(e){}
+              }} />} label="Workouts (30d)" />
+            </div>
+          </MotionListItem>
+
+          <MotionListItem>
+            <div className="surface p-4 rounded">
+              <StatCard value={chartData.length} label="Chart points" />
+            </div>
+          </MotionListItem>
+        </MotionList>
 
         <div className="surface p-4 rounded">
           <h2 className="font-medium mb-2">Recent Activity</h2>

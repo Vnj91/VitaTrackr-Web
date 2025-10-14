@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import MotionList from '../../components/MotionList'
+import MotionListItem from '../../components/MotionListItem'
 
 export default function DevPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -28,23 +30,36 @@ export default function DevPage() {
     <div className="min-h-screen">
       <main className="max-w-4xl mx-auto p-6">
         <h1 className="text-2xl font-semibold mb-4">Dev Tools</h1>
-        <section className="surface p-4 rounded mb-4">
-          <h2 className="font-medium">Seeded Users</h2>
-          <div className="mb-2"><a href="/dev/mock-login" className="text-sm text-blue-600">Open Mock Login</a></div>
-          <pre className="text-sm mt-2">{JSON.stringify(users, null, 2)}</pre>
-        </section>
-        <section className="surface p-4 rounded mb-4">
-          <h2 className="font-medium">Sample Workouts</h2>
-          <pre className="text-sm mt-2">{JSON.stringify(workouts, null, 2)}</pre>
-        </section>
-        <section className="surface p-4 rounded mb-4">
-          <h2 className="font-medium">Sample Recipe</h2>
-          <pre className="text-sm mt-2">{JSON.stringify(recipe, null, 2)}</pre>
-        </section>
-        <section className="surface p-4 rounded mb-4">
-          <h2 className="font-medium">Analytics (proxy)</h2>
-          <pre className="text-sm mt-2">{JSON.stringify(analytics, null, 2)}</pre>
-        </section>
+        <MotionList className="space-y-4">
+          <MotionListItem>
+            <section className="surface p-4 rounded">
+              <h2 className="font-medium">Seeded Users</h2>
+              <div className="mb-2"><a href="/dev/mock-login" className="text-sm text-blue-600">Open Mock Login</a></div>
+              <pre className="text-sm mt-2">{JSON.stringify(users, null, 2)}</pre>
+            </section>
+          </MotionListItem>
+
+          <MotionListItem>
+            <section className="surface p-4 rounded">
+              <h2 className="font-medium">Sample Workouts</h2>
+              <pre className="text-sm mt-2">{JSON.stringify(workouts, null, 2)}</pre>
+            </section>
+          </MotionListItem>
+
+          <MotionListItem>
+            <section className="surface p-4 rounded">
+              <h2 className="font-medium">Sample Recipe</h2>
+              <pre className="text-sm mt-2">{JSON.stringify(recipe, null, 2)}</pre>
+            </section>
+          </MotionListItem>
+
+          <MotionListItem>
+            <section className="surface p-4 rounded">
+              <h2 className="font-medium">Analytics (proxy)</h2>
+              <pre className="text-sm mt-2">{JSON.stringify(analytics, null, 2)}</pre>
+            </section>
+          </MotionListItem>
+        </MotionList>
       </main>
     </div>
   )

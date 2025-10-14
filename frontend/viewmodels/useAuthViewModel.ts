@@ -13,6 +13,7 @@ export function useAuthViewModel() {
       setUser(data.user)
       // store token in memory/localStorage for demo (in production store httpOnly cookie)
       localStorage.setItem('token', data.token)
+      try { localStorage.setItem('user', JSON.stringify(data.user)) } catch(e) {}
       return data
     } catch (err: any) { setError(err.message || 'error') }
     finally { setLoading(false) }
@@ -24,6 +25,7 @@ export function useAuthViewModel() {
       const data = await authService.login(payload)
       setUser(data.user)
       localStorage.setItem('token', data.token)
+      try { localStorage.setItem('user', JSON.stringify(data.user)) } catch(e) {}
       return data
     } catch (err: any) { setError(err.message || 'error') }
     finally { setLoading(false) }

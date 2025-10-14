@@ -4,9 +4,11 @@ import React, { useState } from 'react'
 import { useAuthViewModel } from '../../../viewmodels/useAuthViewModel'
 import LoadingSpinner from '../../../components/LoadingSpinner'
 import { toast } from '../../../components/Toast'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const { loading, error, login } = useAuthViewModel()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -21,9 +23,11 @@ export default function LoginPage() {
       toast('Password must be at least 6 characters', 'error')
       return
     }
-    await login({ email, password })
-    // assume login sets user in local state via viewmodel; show toast
-    toast('Signed in', 'success')
+    const data = await login({ email, password })
+    if (data && data.token) {
+      toast('Signed in', 'success')
+      router.push('/')
+    }
   }
 
   return (

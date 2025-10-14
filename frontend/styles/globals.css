@@ -40,6 +40,12 @@ p, input, button { line-height: 1.4 }
 .muted { color: rgb(var(--muted)); }
 .accent { color: rgb(var(--accent)); }
 
+/* Ensure surface cards and main content sit above decorative backgrounds/overlays so inputs remain interactive */
+#main-content, main, .surface { position: relative; z-index: 10 }
+
+/* Inputs should always accept pointer events (some overlays may accidentally block them) */
+input, textarea, select, button { pointer-events: auto }
+
 /* theme helper: add .dark class to body for explicit control */
 body.dark {
   filter: none;
