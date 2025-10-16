@@ -1,5 +1,11 @@
 require('dotenv').config()
 const express = require('express')
+let helmet = null
+try {
+  helmet = require('helmet')
+} catch (err) {
+  helmet = null
+}
 const cors = require('cors')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
@@ -18,6 +24,8 @@ const healthRoutes = require('./routes/healthRoutes')
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
+// Security headers (apply if installed)
+if (helmet) app.use(helmet())
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }))
 
 app.use('/api/recipes', rateLimit, aiRoutes)
@@ -40,14 +48,19 @@ app.get('/api/me', authMiddleware, async (req, res) => {
   res.json({ userId: req.user.id, email: req.user.email })
 })
 
-const MONGO = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vitatrack'
-mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true }).then(()=>{
-  console.log('Connected to MongoDB')
-}).catch(err=>console.error('Mongo connection error', err))
-
 const port = process.env.PORT || 5001
-if (require.main === module) {
-  app.listen(port, ()=>console.log(`Node AI server running on ${port}`))
+
+// export a helper to let tests control when to connect
+async function start() {
+  const MONGO = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vitatrack'
+  await mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
+  const logger = require('./lib/logger')
+  logger.info('Connected to MongoDB')
+  return app.listen(port, ()=>logger.info(`Node AI server running on ${port}`))
 }
 
-module.exports = app
+if (require.main === module) {
+  start().catch(err=>console.error('Mongo connection error', err))
+}
+
+module.exports = { app, start }

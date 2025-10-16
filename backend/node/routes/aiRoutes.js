@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const aiController = require('../controllers/aiController')
+const cache = require('../middleware/cache')
 
 router.post('/generate', aiController.generateRecipe)
 
 // Dev sample recipe (no OpenAI call)
-router.get('/sample', (req, res) => {
+router.get('/sample', cache(300), (req, res) => {
 	res.json({
 		title: 'Quick Veggie Stir Fry',
 		servings: 2,

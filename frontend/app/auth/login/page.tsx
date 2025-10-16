@@ -38,7 +38,7 @@ export default function LoginPage() {
           <label className="block">
             <span className="text-sm muted">Email</span>
             <input id="login-email" aria-describedby="email-help" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 block w-full border rounded p-2" />
-            <div id="email-help" className="text-xs muted mt-1">We'll never share your email.</div>
+            <div id="email-help" className="text-xs muted mt-1">We&apos;ll never share your email.</div>
           </label>
           <label className="block mt-3">
             <span className="text-sm muted">Password</span>

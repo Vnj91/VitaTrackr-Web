@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reset and sensible defaults */
 :root {
   --bg: 255 255 255;
   --text: 17 24 39; /* gray-900 */
@@ -19,6 +20,13 @@
     --surface: 10 11 12;
   }
 }
+
+/* Box sizing and text-size adjust for mobile browsers */
+html {
+  box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+}
+*, *::before, *::after { box-sizing: inherit; }
 
 html, body, #__next {
   height: 100%;
@@ -73,7 +81,7 @@ button:hover {
   100% { background-position: 200% 0 }
 }
 
-/* Skip link */
+/* Skip link (visible on keyboard focus) */
 .skip-link {
   position: absolute;
   left: -999px;
@@ -82,7 +90,7 @@ button:hover {
   height: 1px;
   overflow: hidden;
 }
-.skip-link:focus {
+.skip-link:focus-visible {
   left: 1rem;
   top: 1rem;
   width: auto;
@@ -95,7 +103,8 @@ button:hover {
 }
 
 /* Focus visible for keyboard users */
-*:focus {
+/* Only remove outlines when the element is focused but not focus-visible (mouse/gesture focus) */
+:focus:not(:focus-visible) {
   outline: none;
 }
 :focus-visible {
@@ -112,3 +121,10 @@ button:hover {
   transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
 }
 .btn:active { transform: translateY(1px) scale(0.995); }
+
+/* Respect user preference for reduced motion: disable non-essential animations and transitions */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .skeleton { animation: none !important; }
+  button, .card, .btn { transform: none !important; }
+}

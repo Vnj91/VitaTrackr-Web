@@ -56,6 +56,21 @@ This will open new PowerShell windows to start the Node backend and the Next fro
  - Open http://localhost:3000/dev to view seeded users, sample workouts, sample recipe and analytics proxy results.
  - Use "Open Mock Login" to simulate logging in as a seeded user.
 
+Docker Compose (local dev)
+
+You can run the full stack (frontend + backend + MongoDB) using Docker Compose. From the repository root:
+
+```powershell
+docker-compose up --build
+```
+
+For live code mounts during development (requires Docker on your machine), you can use the provided override:
+
+```powershell
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
+```
+
+
 5. Environment variables
 
  - `OPENAI_API_KEY` — required if you want the AI route to call OpenAI.
@@ -66,6 +81,11 @@ Notes
 
  - Dev-only endpoints live under `/api/debug`, `/api/workouts/sample`, `/api/recipes/sample`.
  - The analytics proxy is at `/api/analytics/proxy/workouts/:userId` and will return either Spring data or mock analytics for development convenience.
+
+CI and tests
+
+- A GitHub Actions workflow is included at `.github/workflows/ci.yml` that runs frontend lint/typecheck and backend tests on push/PR to main.
+- The backend test script will attempt to use `jest` if available; when jest isn't installed the test script falls back to a lightweight health check (`node test/runChecks.js`).
 
 Troubleshooting
 

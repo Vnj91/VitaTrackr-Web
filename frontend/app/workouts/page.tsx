@@ -1,9 +1,11 @@
+"use client"
+
 import React from 'react'
 import WorkoutChart from '../../components/WorkoutChart'
 import { useWorkoutsViewModel } from '../../viewmodels/useWorkoutsViewModel'
 
 export default function WorkoutsPage() {
-  const tokenUser = typeof window !== 'undefined' && localStorage.getItem('user')
+  const tokenUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null
   const user = tokenUser ? JSON.parse(tokenUser) : null
   const { loading, error, items } = useWorkoutsViewModel(user?.id)
 

@@ -29,7 +29,7 @@ function ThemeToggle() {
   }
 
   return (
-    <button onClick={toggle} aria-label="Toggle theme" className="px-2 py-1 rounded border">
+    <button type="button" onClick={toggle} aria-label="Toggle theme" className="px-2 py-1 rounded border">
       {dark ? '🌙' : '☀️'}
     </button>
   )
@@ -44,10 +44,16 @@ export default function Navbar() {
     // global flag to indicate a navbar has been rendered
     // this helps quickly guard against duplicate mounts in dev or layout duplicates
     const key = '__vitatrack_nav_rendered'
-    if ((window as any)[key]) {
-      setShouldRender(false)
-    } else {
-      (window as any)[key] = true
+    try {
+      const win = window as any
+      if (win && win[key]) {
+        setShouldRender(false)
+      } else if (win) {
+        win[key] = true
+        setShouldRender(true)
+      }
+    } catch (err) {
+      // defensive: if any cross-origin or CSP restriction prevents access, allow render
       setShouldRender(true)
     }
   }, [])
@@ -63,38 +69,58 @@ export default function Navbar() {
     }
   }, [])
   useEffect(()=>{
-    const t = localStorage.getItem('token')
-    const u = localStorage.getItem('user')
-    if (t && u) setUser(JSON.parse(u))
+    if (typeof window === 'undefined') return
+    try {
+      const t = localStorage.getItem('token')
+      const u = localStorage.getItem('user')
+      if (t && u) {
+        try {
+          setUser(JSON.parse(u))
+        } catch (err) {
+          // corrupted user in storage; clear it to avoid repeated errors
+          localStorage.removeItem('user')
+          localStorage.removeItem('token')
+        }
+      }
+    } catch (err) {
+      // access to localStorage may be blocked; ignore gracefully
+    }
   }, [])
 
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+      }
+    } catch (err) {
+      // ignore
+    }
     setUser(null)
   }
 
   // Dev helper: open mock login page
   const devLogin = () => {
-    if (typeof window !== 'undefined') window.location.href = '/dev/mock-login'
+    if (typeof window !== 'undefined') {
+      try { window.location.href = '/dev/mock-login' } catch (_) {}
+    }
   }
 
   if (!shouldRender) return null
 
   return (
-    <nav data-vt-navbar className="surface shadow">
+    <nav data-vt-navbar className="surface shadow" role="navigation" aria-label="Main navigation">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <span className="font-bold text-lg">VitaTrack</span>
-          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/'}}>Dashboard</MotionButton>
+          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') try { window.location.href='/' } catch(_) {}}}>Dashboard</MotionButton>
           <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/ingredients'}}>Ingredients</MotionButton>
           <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/workouts'}}>Workouts</MotionButton>
             {/* dev button placeholder keeps DOM stable to avoid hydration mismatch */}
-            <span aria-hidden className="nav-dev-placeholder">
-              {mounted && isLocal ? (
-                <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/dev'}}>Dev</MotionButton>
-              ) : null}
-            </span>
+            <span aria-hidden className="nav-dev-placeholder" />
+            {mounted && isLocal ? (
+              <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') try { window.location.href='/dev' } catch(_) {}}}>Dev</MotionButton>
+            ) : null}
           <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/profile'}}>Profile</MotionButton>
         </div>
         <div className="flex items-center space-x-2">

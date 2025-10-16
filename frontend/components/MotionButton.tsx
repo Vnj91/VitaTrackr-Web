@@ -7,11 +7,20 @@ import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'
 export default function MotionButton({ children, className = '', ...rest }: { children: ReactNode; className?: string } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const prefersReduced = usePrefersReducedMotion()
 
-  const hover = prefersReduced ? {} : { scale: 1.03 }
-  const tap = prefersReduced ? {} : { scale: 0.98 }
+  if (prefersReduced) {
+    return (
+      <button type="button" className={`inline-flex items-center justify-center gap-2 ${className}`} {...(rest as any)}>
+        {children}
+      </button>
+    )
+  }
+
+  const hover = { scale: 1.03 }
+  const tap = { scale: 0.98 }
 
   return (
     <motion.button
+      type="button"
       whileHover={hover}
       whileTap={tap}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}

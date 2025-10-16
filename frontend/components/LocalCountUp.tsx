@@ -43,7 +43,7 @@ export default function LocalCountUp({ end = 0, duration = 1, onComplete }: Prop
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       rafRef.current = null
     }
-  }, [end, duration, onComplete])
+  }, [end, duration, onComplete, prefersReduced])
 
   return <>{value}</>
 }
