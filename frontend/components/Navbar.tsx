@@ -36,7 +36,6 @@ export default function Navbar() {
     { label: 'Home', href: '/' },
     { label: 'Plans', href: '/plans' },
     { label: 'Progress', href: '/progress' },
-    { label: 'Pricing', href: '/pricing' },
     { label: 'Contact', href: '/contact' }
   ]
 

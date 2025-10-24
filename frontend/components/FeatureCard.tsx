@@ -18,8 +18,14 @@ export default function FeatureCard({ title, desc, href, icon }: { title:string,
       case 'users': return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600"><path d="M17 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       )
+      case 'recipes': return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600"><path d="M3 3h18v2H3V3zm2 6h14v11H5V9zm3 2v7" fill="currentColor"/></svg>
+      )
       case 'nutrition': return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z" fill="currentColor"/></svg>
+      )
+      case 'calories': return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600"><path d="M12 2s3 2 3 5c0 5-6 8-6 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="7" r="1" fill="currentColor"/></svg>
       )
       case 'trainers': return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-indigo-600"><path d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM4 18c0-2.21 3-4 6-4s6 1.79 6 4v1H4v-1z" fill="currentColor"/></svg>
