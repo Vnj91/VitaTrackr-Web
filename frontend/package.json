@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "test": "node test/run-smoke.js",
   "dependencies": {
     "framer-motion": "10.12.16",
     "next": "13.4.10",
