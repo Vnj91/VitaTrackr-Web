@@ -32,14 +32,12 @@ export default function Navbar() {
     }
   }, [])
 
+  // Minimal menu: Home always, Dashboard only when logged in.
   const baseMenu = [
-    { label: 'Home', href: '/' },
-    { label: 'Plans', href: '/plans' },
-    { label: 'Progress', href: '/progress' },
-    { label: 'Contact', href: '/contact' }
+    { label: 'Home', href: '/' }
   ]
 
-  const menu = loggedIn ? [{ label: 'Home', href: '/' }, { label: 'Dashboard', href: '/dashboard' }, ...baseMenu.slice(1)] : baseMenu
+  const menu = loggedIn ? [{ label: 'Home', href: '/' }, { label: 'Dashboard', href: '/dashboard' }] : baseMenu
 
   const go = (href:string) => { setOpen(false); try{ router.push(href) }catch(_){} }
 
