@@ -22,10 +22,12 @@ export default function Navbar() {
 
   const menu = [
     { label: 'Home', href: '/' },
-    { label: 'Programs', href: '/programs' },
-    { label: 'Trainers', href: '/trainers' },
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Plans', href: '/plans' },
+    { label: 'Progress', href: '/progress' },
+    { label: 'Community', href: '/community' },
+    { label: 'Nutrition', href: '/nutrition' },
     { label: 'Pricing', href: '/pricing' },
-    { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' }
   ]
 
@@ -37,7 +39,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <button aria-label="Home" onClick={()=>go('/')} className="flex items-center space-x-2 focus:outline-none">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-indigo-600"><rect width="24" height="24" rx="6" fill="currentColor"/></svg>
-            <span className="font-bold text-lg">FitForge</span>
+            <span className="font-bold text-lg">VitaTrackr</span>
           </button>
         </div>
 

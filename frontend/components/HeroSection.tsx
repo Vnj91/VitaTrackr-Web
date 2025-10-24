@@ -59,10 +59,10 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] to-[#0b1220] opacity-95" style={{mixBlendMode:'multiply'}} />
         <div className="absolute -top-24 right-0 w-96 h-96 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full blur-3xl opacity-50 transform rotate-45" />
         <div className="max-w-6xl mx-auto relative z-10 px-6 text-white">
-          <motion.h1 initial="hidden" animate={controls} variants={{ hidden:{ opacity:0, y:10 }, visible:{ opacity:1, y:0, transition:{ duration:0.6 } } }} className="text-3xl md:text-5xl font-extrabold leading-tight">
+          <motion.h1 initial="hidden" animate={controls} variants={{ hidden:{ opacity:0, y:10 }, visible:{ opacity:1, y:0, transition:{ duration:0.6 } } }} className="text-5xl md:text-6xl font-extrabold leading-tight">
             Unleash Your Strength: Transform Your Body with Our Fitness Program
           </motion.h1>
-          <motion.p initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0, transition:{ delay:0.15 } }} className="mt-4 text-lg text-indigo-100 max-w-2xl">
+          <motion.p initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0, transition:{ delay:0.15 } }} className="mt-4 text-lg text-indigo-100/90 max-w-2xl">
             Personalized plans, expert coaching, and a community that keeps you motivated. Start your journey with a plan built for your goals.
           </motion.p>
 

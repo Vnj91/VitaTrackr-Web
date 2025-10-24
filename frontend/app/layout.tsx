@@ -14,7 +14,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+  <body className="font-sans">
         <a href="#main-content" className="skip-link">Skip to content</a>
         <Navbar />
         <ToastContainer />

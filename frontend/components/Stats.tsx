@@ -31,7 +31,7 @@ export default function Stats({ items }:{ items: {label:string, value:number, du
   }
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center py-6">
       {items.map((it, idx)=> <StatItem key={idx} label={it.label} value={it.value} duration={it.duration} />)}
     </div>
   )

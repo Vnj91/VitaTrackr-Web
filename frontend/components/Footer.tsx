@@ -8,15 +8,16 @@ export default function Footer(){
     <footer className="bg-gray-900 text-gray-200 mt-12">
       <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <h4 className="font-bold text-white">FitForge</h4>
+          <h4 className="font-bold text-white">VitaTrackr</h4>
           <p className="text-sm text-gray-400 mt-2">Build strength. Stay consistent. Join our community.</p>
         </div>
         <div>
           <h5 className="font-semibold">Links</h5>
           <ul className="mt-2 space-y-1">
             <li><Link href="/">Home</Link></li>
-            <li><Link href="/privacy">Privacy Policy</Link></li>
-            <li><Link href="/terms">Terms</Link></li>
+            <li><Link href="/dashboard">Dashboard</Link></li>
+            <li><Link href="/plans">Plans</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
           </ul>
         </div>
         <div>

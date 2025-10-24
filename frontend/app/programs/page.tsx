@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react'
 
 export default function ProgramsPage(){
@@ -21,7 +23,7 @@ export default function ProgramsPage(){
 }
 
 function ProgramSubscribe({ id }: { id: string }){
-  const [sub, setSub] = React.useState<boolean>(()=>{ try { const m = JSON.parse(localStorage.getItem('vt:programSubs')||'{}'); return !!m[id] } catch(e){ return false } })
+  const [sub, setSub] = React.useState(()=>{ try { const m = JSON.parse(localStorage.getItem('vt:programSubs')||'{}'); return !!m[id] } catch(e){ return false } })
   function toggle(){
     const next = !sub
     (async ()=>{

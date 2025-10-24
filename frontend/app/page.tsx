@@ -19,9 +19,12 @@ export default function Page() {
         <section className="max-w-6xl mx-auto mt-12">
           <h2 className="text-2xl font-bold mb-4">Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FeatureCard title="Personalized Plans" desc="Tailored workouts for your goals" href="/plans" icon="dumbbell" />
-            <FeatureCard title="Track Progress" desc="Visualize your workouts and nutrition" href="/progress" icon="chart" />
-            <FeatureCard title="Community" desc="Join challenges with friends" href="/community" icon="users" />
+            <FeatureCard title="Personalized Plans" desc="Tailored workouts for your goals" href="/plans" icon="plans" />
+            <FeatureCard title="Progress Tracking" desc="Visualize your workouts and nutrition" href="/progress" icon="progress" />
+            <FeatureCard title="Nutrition Guidance" desc="Meal plans and nutrition tips" href="/nutrition" icon="nutrition" />
+            <FeatureCard title="Community Challenges" desc="Join challenges with friends" href="/community" icon="community" />
+            <FeatureCard title="Trainer Directory" desc="Find expert trainers nearby" href="/trainers" icon="trainers" />
+            <FeatureCard title="Subscription Plans" desc="Flexible pricing and offers" href="/pricing" icon="pricing" />
           </div>
         </section>
 
