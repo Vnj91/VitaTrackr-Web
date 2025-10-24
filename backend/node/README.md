@@ -23,6 +23,11 @@ Core endpoints:
 Seed sample data:
 - node seed.js
 
+Notes about recent changes:
+- The seed script is now idempotent: it will not recreate the sample user or workouts if they already exist for today.
+- Cookies set by auth endpoints now include SameSite='lax' and explicit secure/httpOnly flags for improved security.
+
+
 Notes:
 - Authentication is not implemented. Add JWT/OAuth before production.
 - The OpenAI integration expects JSON-like responses; the service tries to parse assistant output as JSON.

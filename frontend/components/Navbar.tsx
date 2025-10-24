@@ -2,40 +2,53 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import MotionButton from './MotionButton'
 
 function ThemeToggle() {
   const [dark, setDark] = useState(false)
   useEffect(() => {
-    const stored = typeof window !== 'undefined' && localStorage.getItem('theme')
-    if (stored === 'dark') {
-      document.body.classList.add('dark')
-      setDark(true)
-    } else if (stored === 'light') {
-      document.body.classList.remove('dark')
-      setDark(false)
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark')
-      setDark(true)
-    }
+    if (typeof window === 'undefined') return
+    const stored = localStorage.getItem('theme')
+    let isDark = false
+    if (stored === 'dark') isDark = true
+    else if (stored === 'light') isDark = false
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) isDark = true
+    setDark(isDark)
+    document.body.classList.toggle('dark', isDark)
   }, [])
 
   const toggle = () => {
+    if (typeof window === 'undefined') return
     const next = !dark
     setDark(next)
-    if (next) document.body.classList.add('dark')
-    else document.body.classList.remove('dark')
+    document.body.classList.toggle('dark', next)
     localStorage.setItem('theme', next ? 'dark' : 'light')
+    // force update CSS variables for dark/light
+    if (next) {
+      document.documentElement.style.setProperty('--bg', '17 24 39')
+      document.documentElement.style.setProperty('--text', '243 244 246')
+      document.documentElement.style.setProperty('--muted', '156 163 175')
+      document.documentElement.style.setProperty('--accent', '99 102 241')
+      document.documentElement.style.setProperty('--surface', '10 11 12')
+    } else {
+      document.documentElement.style.setProperty('--bg', '255 255 255')
+      document.documentElement.style.setProperty('--text', '17 24 39')
+      document.documentElement.style.setProperty('--muted', '107 114 128')
+      document.documentElement.style.setProperty('--accent', '79 70 229')
+      document.documentElement.style.setProperty('--surface', '247 250 252')
+    }
   }
 
   return (
-    <button onClick={toggle} aria-label="Toggle theme" className="px-2 py-1 rounded border">
+    <button type="button" onClick={toggle} aria-label="Toggle theme" className="px-2 py-1 rounded border">
       {dark ? '🌙' : '☀️'}
     </button>
   )
 }
 
 export default function Navbar() {
+  const router = useRouter()
   const [user, setUser] = useState<any | null>(null)
   const [shouldRender, setShouldRender] = useState(true)
   // prevent duplicate navbars if the component is accidentally mounted twice
@@ -44,10 +57,16 @@ export default function Navbar() {
     // global flag to indicate a navbar has been rendered
     // this helps quickly guard against duplicate mounts in dev or layout duplicates
     const key = '__vitatrack_nav_rendered'
-    if ((window as any)[key]) {
-      setShouldRender(false)
-    } else {
-      (window as any)[key] = true
+    try {
+      const win = window as any
+      if (win && win[key]) {
+        setShouldRender(false)
+      } else if (win) {
+        win[key] = true
+        setShouldRender(true)
+      }
+    } catch (err) {
+      // defensive: if any cross-origin or CSP restriction prevents access, allow render
       setShouldRender(true)
     }
   }, [])
@@ -63,38 +82,56 @@ export default function Navbar() {
     }
   }, [])
   useEffect(()=>{
-    const t = localStorage.getItem('token')
-    const u = localStorage.getItem('user')
-    if (t && u) setUser(JSON.parse(u))
+    if (typeof window === 'undefined') return
+    try {
+      const t = localStorage.getItem('token')
+      const u = localStorage.getItem('user')
+      if (t && u) {
+        try {
+          setUser(JSON.parse(u))
+        } catch (err) {
+          // corrupted user in storage; clear it to avoid repeated errors
+          localStorage.removeItem('user')
+          localStorage.removeItem('token')
+        }
+      }
+    } catch (err) {
+      // access to localStorage may be blocked; ignore gracefully
+    }
   }, [])
 
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+      }
+    } catch (err) {
+      // ignore
+    }
     setUser(null)
   }
 
   // Dev helper: open mock login page
   const devLogin = () => {
-    if (typeof window !== 'undefined') window.location.href = '/dev/mock-login'
+    try { router.push('/dev/mock-login') } catch (_) {}
   }
 
   if (!shouldRender) return null
 
   return (
-    <nav data-vt-navbar className="surface shadow">
+    <nav data-vt-navbar className="surface shadow" role="navigation" aria-label="Main navigation">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <span className="font-bold text-lg">VitaTrack</span>
-          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/'}}>Dashboard</MotionButton>
-          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/ingredients'}}>Ingredients</MotionButton>
-          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/workouts'}}>Workouts</MotionButton>
+          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ try { router.push('/') } catch(_) {} }}>Dashboard</MotionButton>
+          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ try { router.push('/ingredients') } catch(_) {} }}>Ingredients</MotionButton>
+          <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ try { router.push('/workouts') } catch(_) {} }}>Workouts</MotionButton>
             {/* dev button placeholder keeps DOM stable to avoid hydration mismatch */}
-            <span aria-hidden className="nav-dev-placeholder">
-              {mounted && isLocal ? (
-                <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/dev'}}>Dev</MotionButton>
-              ) : null}
-            </span>
+            <span aria-hidden className="nav-dev-placeholder" />
+            {mounted && isLocal ? (
+              <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ try { router.push('/dev') } catch(_) {} }}>Dev</MotionButton>
+            ) : null}
           <MotionButton className="px-2 py-1 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/profile'}}>Profile</MotionButton>
         </div>
         <div className="flex items-center space-x-2">
@@ -106,8 +143,8 @@ export default function Navbar() {
             <>
               {mounted ? (
                 <>
-                  <MotionButton className="px-3 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/auth/login'}}>Sign in</MotionButton>
-                  <MotionButton className="px-3 text-sm" onClick={()=>{ if(typeof window !== 'undefined') window.location.href='/auth/register'}}>Register</MotionButton>
+                  <MotionButton className="px-3 text-sm" onClick={()=>{ try { router.push('/auth/login') } catch(_) {} }}>Sign in</MotionButton>
+                  <MotionButton className="px-3 text-sm" onClick={()=>{ try { router.push('/auth/register') } catch(_) {} }}>Register</MotionButton>
                 </>
               ) : (
                 <>

@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from 'react'
 import * as workoutsService from '../services/workoutsService'
 
@@ -9,15 +11,19 @@ export function useWorkoutsViewModel(userId?: string) {
   async function load(userIdLocal?: string) {
     const id = userIdLocal || userId
     if (!id) return
-    setLoading(true); setError(null)
+    setLoading(true)
+    setError(null)
     try {
       const data = await workoutsService.getWorkoutsForUser(id)
       setItems(data)
-    } catch (err: any) { setError(err.message || 'error') }
-    finally { setLoading(false) }
+    } catch (err: any) {
+      setError(err?.message || 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(()=>{ if (userId) load(userId) }, [userId])
+  useEffect(() => { if (userId) load(userId) }, [userId])
 
   return { loading, error, items, reload: load }
 }

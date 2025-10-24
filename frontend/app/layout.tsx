@@ -5,6 +5,7 @@ import PageTransition from '../components/PageTransition'
 import dynamic from 'next/dynamic'
 // import the client wrapper which re-exports ToastContainer as default
 const ToastContainer = dynamic(() => import('../components/ToastClient'), { ssr: false })
+const Shortcuts = dynamic(() => import('../components/Shortcuts'), { ssr: false })
 
 export const metadata = {
   title: 'VitaTrackr',
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="skip-link">Skip to content</a>
         <Navbar />
         <ToastContainer />
+  <Shortcuts />
         <PageTransition>
           <div id="main-content">{children}</div>
         </PageTransition>

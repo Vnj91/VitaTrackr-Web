@@ -24,6 +24,10 @@ export default function MotionList({ children, className = '' }: { children: Rea
         }
       }
 
+  if (prefersReduced) {
+    return <div className={className}>{children}</div>
+  }
+
   return (
     <motion.div initial="hidden" animate="show" variants={container} className={className}>
       {children}

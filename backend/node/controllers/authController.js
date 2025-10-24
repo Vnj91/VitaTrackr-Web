@@ -33,8 +33,9 @@ exports.register = async (req, res) => {
   user.refreshTokens.push({ tokenHash: refreshHash, createdAt: new Date() })
   await user.save()
   // set cookies
-  res.cookie('token', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 24 * 7 })
-  res.cookie('refreshToken', refresh, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 24 * 30 })
+  const cookieOpts = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' }
+  res.cookie('token', accessToken, { ...cookieOpts, maxAge: 1000 * 60 * 60 * 24 * 7 })
+  res.cookie('refreshToken', refresh, { ...cookieOpts, maxAge: 1000 * 60 * 60 * 24 * 30 })
   res.json({ token: accessToken, user: { id: user._id, name: user.name, email: user.email, allergies: user.allergies, diet: user.diet, goal: user.goal } })
   } catch (err) {
     console.error(err)
@@ -73,8 +74,9 @@ exports.login = async (req, res) => {
   user.refreshTokens = user.refreshTokens || []
   user.refreshTokens.push({ tokenHash: refreshHash, createdAt: new Date() })
   await user.save()
-  res.cookie('token', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 24 * 7 })
-  res.cookie('refreshToken', refresh, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 24 * 30 })
+  const cookieOpts = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' }
+  res.cookie('token', accessToken, { ...cookieOpts, maxAge: 1000 * 60 * 60 * 24 * 7 })
+  res.cookie('refreshToken', refresh, { ...cookieOpts, maxAge: 1000 * 60 * 60 * 24 * 30 })
   res.json({ token: accessToken, user: { id: user._id, name: user.name, email: user.email, allergies: user.allergies, diet: user.diet, goal: user.goal } })
   } catch (err) {
     console.error(err)
@@ -134,8 +136,9 @@ exports.refreshToken = async (req, res) => {
     const { accessToken, refresh: newRefresh, refreshHash: newRefreshHash } = createTokenPair(user)
     user.refreshTokens.push({ tokenHash: newRefreshHash, createdAt: new Date() })
     await user.save()
-    res.cookie('token', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 24 * 7 })
-    res.cookie('refreshToken', newRefresh, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 1000 * 60 * 60 * 24 * 30 })
+  const cookieOpts = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' }
+  res.cookie('token', accessToken, { ...cookieOpts, maxAge: 1000 * 60 * 60 * 24 * 7 })
+  res.cookie('refreshToken', newRefresh, { ...cookieOpts, maxAge: 1000 * 60 * 60 * 24 * 30 })
     return res.json({ ok: true, token: accessToken, user: { id: user._id, name: user.name, email: user.email } })
   } catch (err) {
     console.error(err)
@@ -153,8 +156,9 @@ exports.revokeRefresh = async (req, res) => {
     if (!user) return res.json({ ok: true })
     user.refreshTokens = (user.refreshTokens || []).filter(rt => rt.tokenHash !== rh)
     await user.save()
-    res.clearCookie('refreshToken')
-    res.clearCookie('token')
+  // clear cookies with same options for consistent behavior
+  res.clearCookie('refreshToken', { sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true })
+  res.clearCookie('token', { sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true })
     return res.json({ ok: true })
   } catch (err) {
     console.error(err)

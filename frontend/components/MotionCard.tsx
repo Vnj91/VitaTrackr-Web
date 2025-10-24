@@ -1,13 +1,18 @@
 "use client"
 
+import React from 'react'
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'
 
 export default function MotionCard({ children, className = '' }: { children: ReactNode; className?: string }) {
   const prefersReduced = usePrefersReducedMotion()
-  const hover = prefersReduced ? {} : { y: -4, scale: 1.01 }
-  const tap = prefersReduced ? {} : { scale: 0.995 }
+  if (prefersReduced) {
+    return <div className={`rounded shadow-sm bg-white dark:bg-gray-800 ${className}`}>{children}</div>
+  }
+
+  const hover = { y: -4, scale: 1.01 }
+  const tap = { scale: 0.995 }
 
   return (
     <motion.div

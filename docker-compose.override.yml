@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  backend:
+    volumes:
+      - ./backend/node:/usr/src/app:cached
+    environment:
+      - NODE_ENV=development
+  frontend:
+    volumes:
+      - ./frontend:/app:cached
+    environment:
+      - NODE_ENV=development

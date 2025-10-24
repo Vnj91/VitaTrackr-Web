@@ -56,6 +56,21 @@ This will open new PowerShell windows to start the Node backend and the Next fro
  - Open http://localhost:3000/dev to view seeded users, sample workouts, sample recipe and analytics proxy results.
  - Use "Open Mock Login" to simulate logging in as a seeded user.
 
+Docker Compose (local dev)
+
+You can run the full stack (frontend + backend + MongoDB) using Docker Compose. From the repository root:
+
+```powershell
+docker-compose up --build
+```
+
+For live code mounts during development (requires Docker on your machine), you can use the provided override:
+
+```powershell
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
+```
+
+
 5. Environment variables
 
  - `OPENAI_API_KEY` — required if you want the AI route to call OpenAI.
@@ -67,12 +82,24 @@ Notes
  - Dev-only endpoints live under `/api/debug`, `/api/workouts/sample`, `/api/recipes/sample`.
  - The analytics proxy is at `/api/analytics/proxy/workouts/:userId` and will return either Spring data or mock analytics for development convenience.
 
+CI and tests
+
+- A GitHub Actions workflow is included at `.github/workflows/ci.yml` that runs frontend lint/typecheck and backend tests on push/PR to main.
+- The backend test script will attempt to use `jest` if available; when jest isn't installed the test script falls back to a lightweight health check (`node test/runChecks.js`).
+
 Troubleshooting
 
 - Port in use: If the backend or frontend fail to start because a port is in use, either stop the process using the port (Windows: use Task Manager or `Get-Process -Id (Get-NetTCPConnection -LocalPort 5001).OwningProcess`) or change PORT/META settings in `.env`.
 - Mongo not running: If the Node backend can't connect to Mongo, ensure `mongod` is running or set `MONGO_URI` to a reachable instance. Use `mongo` or MongoDB Compass to verify.
 - Spring Boot analytics: If you expect real analytics data, start the Spring Boot service and set `SPRINGBOOT_URL` to its base URL; otherwise the proxy returns mock data.
 - OpenAI: To enable actual recipe generation, set `OPENAI_API_KEY` in the backend environment.
+
+New features (calories & AI recipes)
+-----------------------------------
+
+- Users can set height/weight/age in the Profile page to calculate BMI and estimate daily required calories.
+- The Dashboard plots achieved daily calories and the user's required daily calories.
+- The Recipe generator will accept a target calorie value and meal time and attempt to suggest a recipe that matches the target; suggestions are saved to the database and viewable in the Profile page.
 
 
 

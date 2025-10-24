@@ -15,3 +15,12 @@ export async function getWorkoutsForUser(userId: string) {
   if (!res.ok) throw new Error('Failed to fetch workouts')
   return res.json()
 }
+
+export async function cloneWorkout(workoutId: string) {
+  const headers: any = { 'Content-Type': 'application/json' }
+  const token = typeof window !== 'undefined' && localStorage.getItem('token')
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const res = await fetch(`/api/workouts/${workoutId}/clone`, { method: 'POST', headers })
+  if (!res.ok) throw new Error('Failed to clone workout')
+  return res.json()
+}

@@ -1,5 +1,11 @@
 require('dotenv').config()
 const express = require('express')
+let helmet = null
+try {
+  helmet = require('helmet')
+} catch (err) {
+  helmet = null
+}
 const cors = require('cors')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
@@ -14,14 +20,18 @@ const rateLimit = require('./middleware/rateLimit')
 const debugRoutes = require('./routes/debugRoutes')
 const analyticsRoutes = require('./routes/analyticsRoutes')
 const healthRoutes = require('./routes/healthRoutes')
+const mealsRoutes = require('./routes/mealsRoutes')
 
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
+// Security headers (apply if installed)
+if (helmet) app.use(helmet())
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }))
 
 app.use('/api/recipes', rateLimit, aiRoutes)
 app.use('/api/workouts', workoutRoutes)
+app.use('/api/meals', mealsRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/goals', goalsRoutes)
 app.use('/api/auth', rateLimit, authRoutes)
@@ -40,14 +50,32 @@ app.get('/api/me', authMiddleware, async (req, res) => {
   res.json({ userId: req.user.id, email: req.user.email })
 })
 
-const MONGO = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vitatrack'
-mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true }).then(()=>{
-  console.log('Connected to MongoDB')
-}).catch(err=>console.error('Mongo connection error', err))
-
 const port = process.env.PORT || 5001
-if (require.main === module) {
-  app.listen(port, ()=>console.log(`Node AI server running on ${port}`))
+
+// export a helper to let tests control when to connect
+async function start() {
+  const MONGO = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vitatrack'
+  const logger = require('./lib/logger')
+  // retry logic for MongoDB connection
+  let attempts = 0
+  const maxAttempts = 5
+  while (attempts < maxAttempts) {
+    try {
+      await mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
+      logger.info('Connected to MongoDB')
+      break
+    } catch (err) {
+      attempts++
+      logger.error(`Mongo connection attempt ${attempts} failed: ${err.message}`)
+      if (attempts >= maxAttempts) throw err
+      await new Promise(r=>setTimeout(r, 2000))
+    }
+  }
+  return app.listen(port, ()=>logger.info(`Node AI server running on ${port}`))
 }
 
-module.exports = app
+if (require.main === module) {
+  start().catch(err=>console.error('Mongo connection error', err))
+}
+
+module.exports = { app, start }

@@ -11,6 +11,10 @@ export default function MotionListItem({ children, className = '' }: { children:
     ? { hidden: { opacity: 0, y: 0 }, show: { opacity: 1, y: 0, transition: { duration: 0.08 } } }
     : { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.36, ease: 'easeOut' } } }
 
+  if (prefersReduced) {
+    return <div className={className}>{children}</div>
+  }
+
   return (
     <motion.div variants={item} className={className}>
       {children}

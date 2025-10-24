@@ -1,35 +1,33 @@
-const axios = require('axios')
+const axios = require('axios');
 
-const OPENAI_KEY = process.env.OPENAI_API_KEY || ''
+const HF_API_KEY = process.env.HF_API_KEY || '';
 
-exports.callOpenAI = async (prompt) => {
-  if (!OPENAI_KEY) {
-    return { error: 'OpenAI key not configured (set OPENAI_API_KEY in .env)' }
+exports.callHuggingFace = async (prompt) => {
+  if (!HF_API_KEY) {
+    return { error: 'Hugging Face key not configured (set HF_API_KEY in .env)' };
   }
 
-  // Simple completion using OpenAI Chat Completions endpoint
+  // Hugging Face Inference API (text-generation)
   try {
-    const resp = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 700
-    }, {
-      headers: {
-        'Authorization': `Bearer ${OPENAI_KEY}`,
-        'Content-Type': 'application/json'
+    const resp = await axios.post(
+      'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct',
+      { inputs: prompt },
+      {
+        headers: {
+          Authorization: `Bearer ${HF_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
-    })
-
-    const text = resp.data?.choices?.[0]?.message?.content
-    // attempt to parse JSON from the assistant
+    );
+    const text = resp.data?.[0]?.generated_text || resp.data?.generated_text || '';
     try {
-      const json = JSON.parse(text)
-      return json
+      const json = JSON.parse(text);
+      return json;
     } catch (e) {
-      return { raw: text }
+      return { raw: text };
     }
   } catch (err) {
-    console.error('OpenAI error', err?.response?.data || err.message)
-    return { error: 'openai request failed', details: err?.response?.data || err.message }
+    console.error('Hugging Face error', err?.response?.data || err.message);
+    return { error: 'huggingface request failed', details: err?.response?.data || err.message };
   }
-}
+};
