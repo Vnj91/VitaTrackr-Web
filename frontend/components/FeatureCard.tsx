@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 export default function FeatureCard({ title, desc, href, icon }: { title:string, desc:string, href:string, icon: string }){
@@ -41,15 +42,15 @@ export default function FeatureCard({ title, desc, href, icon }: { title:string,
 
   return (
     <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="block bg-white rounded-2xl shadow-md p-6 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-shadow">
-      <a href={href} aria-label={`Open ${title}`} className="block">
-      <div className="flex items-center space-x-4">
-        <div className="p-3 bg-indigo-50 rounded-md"><IconNode /></div>
-        <div>
-          <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
-          <p className="text-base text-gray-700">{desc}</p>
+      <Link href={href} aria-label={`Open ${title}`} className="block">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-indigo-50 rounded-md"><IconNode /></div>
+          <div>
+            <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
+            <p className="text-base text-gray-700">{desc}</p>
+          </div>
         </div>
-      </div>
-      </a>
+      </Link>
     </motion.div>
   )
 }
