@@ -1,13 +1,14 @@
 "use client"
 
-import { motion } from 'framer-motion'
-import LocalCountUp from './LocalCountUp'
+import React, { useEffect } from 'react'
+import { motion, useAnimation } from 'framer-motion'
 import ParallaxLayer from './ParallaxLayer'
-import MotionButton from './MotionButton'
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'
 import Link from 'next/link'
 
 export default function HeroSection() {
+  const controls = useAnimation()
+
   const container = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { staggerChildren: 0.12 } }
@@ -16,9 +17,10 @@ export default function HeroSection() {
   const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }
 
   const prefersReduced = usePrefersReducedMotion()
+  useEffect(()=>{ controls.start('visible') }, [controls])
 
   return (
-    <section className="py-12 relative overflow-visible">
+    <section className="pt-24 pb-12"> {/* account for fixed header */}
       {/* decorative animated blob with parallax */}
       <ParallaxLayer depth={0.08} className="absolute -top-10 left-1/2 -translate-x-1/2 -z-10 w-[90%] max-w-4xl">
         {prefersReduced ? (
@@ -52,30 +54,31 @@ export default function HeroSection() {
         )}
       </ParallaxLayer>
 
-      <motion.div initial="hidden" animate="show" variants={container} className="text-center max-w-4xl mx-auto">
-        <motion.h1 variants={item} className="text-4xl md:text-5xl font-extrabold mb-4">Unleash Your Strength: Transform Your Body with Our Fitness Programs</motion.h1>
-        <motion.p variants={item} className="text-gray-600 mb-6">Unlock Your Potential: Achieve Your Fitness Goals with Our Tailored Programs</motion.p>
-        <motion.div variants={item} className="mb-6">
-          <Link href="/auth/register">
-            <MotionButton className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-lg">Get Started</MotionButton>
-          </Link>
-        </motion.div>
 
-        <motion.div variants={item} className="flex justify-center gap-8 mt-6">
-          <div className="text-center">
-              <div className="text-2xl font-bold"><LocalCountUp end={105} /></div>
-            <div className="text-sm muted">Expert Trainers</div>
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] to-[#0b1220] opacity-95" style={{mixBlendMode:'multiply'}} />
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full blur-3xl opacity-50 transform rotate-45" />
+        <div className="max-w-6xl mx-auto relative z-10 px-6 text-white">
+          <motion.h1 initial="hidden" animate={controls} variants={{ hidden:{ opacity:0, y:10 }, visible:{ opacity:1, y:0, transition:{ duration:0.6 } } }} className="text-3xl md:text-5xl font-extrabold leading-tight">
+            Unleash Your Strength: Transform Your Body with Our Fitness Program
+          </motion.h1>
+          <motion.p initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0, transition:{ delay:0.15 } }} className="mt-4 text-lg text-indigo-100 max-w-2xl">
+            Personalized plans, expert coaching, and a community that keeps you motivated. Start your journey with a plan built for your goals.
+          </motion.p>
+
+          <div className="mt-6 flex items-center space-x-4">
+            <Link href="/auth/register" className="inline-block">
+              <motion.button whileTap={{ scale:0.97 }} className="px-5 py-3 rounded bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300">Get Started</motion.button>
+            </Link>
+            <Link href="/programs" className="text-sm text-indigo-200 hover:underline">Explore Programs</Link>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold"><LocalCountUp end={970} duration={1.4} /></div>
-            <div className="text-sm muted">Member Joined</div>
+
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Stats will be rendered by parent page, keep this area for spacing */}
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold"><LocalCountUp end={135} duration={0.9} /></div>
-            <div className="text-sm muted">Fitness Programs</div>
-          </div>
-        </motion.div>
-      </motion.div>
+        </div>
+        <div style={{ height: 220 }} />
+      </div>
     </section>
   )
 }
