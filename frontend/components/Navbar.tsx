@@ -17,19 +17,28 @@ export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(()=>{ setMounted(true) }, [])
+  useEffect(()=>{
+    try {
+      const token = typeof window !== 'undefined' && localStorage.getItem('token')
+      const user = typeof window !== 'undefined' && localStorage.getItem('user')
+      setLoggedIn(!!(token && user))
+    } catch (e) {
+      setLoggedIn(false)
+    }
+  }, [])
 
-  const menu = [
+  const baseMenu = [
     { label: 'Home', href: '/' },
-    { label: 'Dashboard', href: '/dashboard' },
     { label: 'Plans', href: '/plans' },
     { label: 'Progress', href: '/progress' },
-    { label: 'Community', href: '/community' },
-    { label: 'Nutrition', href: '/nutrition' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'Contact', href: '/contact' }
   ]
+
+  const menu = loggedIn ? [{ label: 'Home', href: '/' }, { label: 'Dashboard', href: '/dashboard' }, ...baseMenu.slice(1)] : baseMenu
 
   const go = (href:string) => { setOpen(false); try{ router.push(href) }catch(_){} }
 
@@ -45,12 +54,12 @@ export default function Navbar() {
 
         <nav className="hidden md:flex items-center space-x-6" aria-label="Primary">
           {menu.map(m=> (
-            <button key={m.href} onClick={()=>go(m.href)} className="text-sm font-medium hover:text-indigo-600 focus:outline-none">{m.label}</button>
+            <button key={m.href} onClick={()=>go(m.href)} className="text-sm font-medium text-gray-900 hover:text-indigo-600 focus:outline-none">{m.label}</button>
           ))}
         </nav>
 
         <div className="flex items-center space-x-3">
-          <button onClick={()=>go('/auth/login')} className="px-3 py-1 rounded hover:bg-gray-100 focus:outline-none">Login</button>
+          <button onClick={()=>go('/auth/login')} className="px-3 py-1 rounded text-gray-900 hover:bg-gray-100 focus:outline-none">Login</button>
           <button onClick={()=>go('/auth/register')} className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none">Sign Up</button>
           <button className="md:hidden ml-2 p-2 rounded" aria-label="Open menu" onClick={()=>setOpen(s=>!s)}>
             <MobileIcon open={open} />
@@ -62,7 +71,7 @@ export default function Navbar() {
       <motion.div initial={{ height: 0 }} animate={{ height: open ? 'auto' : 0 }} className="md:hidden overflow-hidden border-t">
         <div className="px-4 py-3 space-y-2">
           {menu.map(m => (
-            <button key={m.href} onClick={()=>go(m.href)} className="w-full text-left py-2 rounded hover:bg-gray-50" aria-label={m.label}>{m.label}</button>
+            <button key={m.href} onClick={()=>go(m.href)} className="w-full text-left py-2 rounded hover:bg-gray-50 text-gray-900" aria-label={m.label}>{m.label}</button>
           ))}
           <div className="pt-2 border-t mt-2 flex space-x-2">
             <button onClick={()=>go('/auth/login')} className="flex-1 py-2 rounded">Login</button>
