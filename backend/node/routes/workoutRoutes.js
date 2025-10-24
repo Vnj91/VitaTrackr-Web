@@ -23,7 +23,14 @@ router.post('/log', auth, validate({ required: ['userId', 'type'] }), async (req
 router.get('/user/:userId', async (req, res) => {
   try {
     const workouts = await Workout.find({ userId: req.params.userId }).sort({ date: -1 }).limit(200)
-    res.json(workouts)
+    // also compute daily aggregate calories (by ISO date)
+    const daily = {}
+    workouts.forEach(w=>{
+      const d = new Date(w.date).toISOString().slice(0,10)
+      daily[d] = (daily[d]||0) + (w.calories||0)
+    })
+    const series = Object.keys(daily).sort().map(d=> ({ date: d, calories: daily[d] }))
+    res.json({ workouts, dailySeries: series })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'server error' })
@@ -48,4 +55,26 @@ router.get('/sample', async (req, res) => {
   }
 })
 
+// Clone a workout: POST /api/workouts/:id/clone
+router.post('/:id/clone', auth, async (req, res) => {
+  try {
+    const orig = await Workout.findById(req.params.id)
+    if (!orig) return res.status(404).json({ error: 'Workout not found' })
+    const copy = new Workout({
+      userId: req.user.id,
+      type: orig.type,
+      durationMin: orig.durationMin,
+      calories: orig.calories,
+      date: new Date().toISOString(),
+      details: orig.details
+    })
+    await copy.save()
+    res.status(201).json(copy)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'server error' })
+  }
+})
+
 module.exports = router
+

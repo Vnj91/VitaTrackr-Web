@@ -28,6 +28,7 @@ html {
 }
 *, *::before, *::after { box-sizing: inherit; }
 
+
 html, body, #__next {
   height: 100%;
 }
@@ -37,6 +38,16 @@ body {
   color: rgb(var(--text));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Inputs: always visible text and placeholder */
+input, textarea, select {
+  color: rgb(var(--text));
+  background-color: rgb(var(--surface));
+}
+input::placeholder, textarea::placeholder {
+  color: rgb(var(--muted));
+  opacity: 1;
 }
 
 /* small typographic scale and consistent spacing */

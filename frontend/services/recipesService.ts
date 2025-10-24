@@ -16,3 +16,16 @@ export async function generateRecipe(payload: RecipeRequest) {
   if (!resp.ok) throw new Error('Failed to generate recipe')
   return resp.json()
 }
+
+export async function toggleFavorite(recipeId: string) {
+  const headers: any = { 'Content-Type': 'application/json' }
+  const token = typeof window !== 'undefined' && localStorage.getItem('token')
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const resp = await fetch(`/api/recipes/${recipeId}/favorite`, {
+    method: 'POST',
+    headers
+  })
+  if (!resp.ok) throw new Error('Failed to toggle favorite')
+  return resp.json()
+}

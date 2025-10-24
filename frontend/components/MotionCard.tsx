@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion'

@@ -94,5 +94,12 @@ Troubleshooting
 - Spring Boot analytics: If you expect real analytics data, start the Spring Boot service and set `SPRINGBOOT_URL` to its base URL; otherwise the proxy returns mock data.
 - OpenAI: To enable actual recipe generation, set `OPENAI_API_KEY` in the backend environment.
 
+New features (calories & AI recipes)
+-----------------------------------
+
+- Users can set height/weight/age in the Profile page to calculate BMI and estimate daily required calories.
+- The Dashboard plots achieved daily calories and the user's required daily calories.
+- The Recipe generator will accept a target calorie value and meal time and attempt to suggest a recipe that matches the target; suggestions are saved to the database and viewable in the Profile page.
+
 
 

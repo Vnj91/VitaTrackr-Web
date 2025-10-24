@@ -7,6 +7,7 @@ const WorkoutSchema = new mongoose.Schema({
   calories: Number,
   date: { type: Date, default: Date.now },
   details: Object
+  // consider adding mealTime or manual targetCalories in future
 })
 
 module.exports = mongoose.model('Workout', WorkoutSchema)

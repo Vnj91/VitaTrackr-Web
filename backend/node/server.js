@@ -20,6 +20,7 @@ const rateLimit = require('./middleware/rateLimit')
 const debugRoutes = require('./routes/debugRoutes')
 const analyticsRoutes = require('./routes/analyticsRoutes')
 const healthRoutes = require('./routes/healthRoutes')
+const mealsRoutes = require('./routes/mealsRoutes')
 
 const app = express()
 app.use(express.json())
@@ -30,6 +31,7 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', cred
 
 app.use('/api/recipes', rateLimit, aiRoutes)
 app.use('/api/workouts', workoutRoutes)
+app.use('/api/meals', mealsRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/goals', goalsRoutes)
 app.use('/api/auth', rateLimit, authRoutes)
@@ -53,9 +55,22 @@ const port = process.env.PORT || 5001
 // export a helper to let tests control when to connect
 async function start() {
   const MONGO = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vitatrack'
-  await mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
   const logger = require('./lib/logger')
-  logger.info('Connected to MongoDB')
+  // retry logic for MongoDB connection
+  let attempts = 0
+  const maxAttempts = 5
+  while (attempts < maxAttempts) {
+    try {
+      await mongoose.connect(MONGO, { useNewUrlParser: true, useUnifiedTopology: true })
+      logger.info('Connected to MongoDB')
+      break
+    } catch (err) {
+      attempts++
+      logger.error(`Mongo connection attempt ${attempts} failed: ${err.message}`)
+      if (attempts >= maxAttempts) throw err
+      await new Promise(r=>setTimeout(r, 2000))
+    }
+  }
   return app.listen(port, ()=>logger.info(`Node AI server running on ${port}`))
 }
 

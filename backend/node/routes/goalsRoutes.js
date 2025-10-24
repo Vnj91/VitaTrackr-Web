@@ -35,4 +35,19 @@ router.get('/user/:userId', async (req, res) => {
   }
 })
 
+// Adjust progress for a goal
+router.post('/:id/progress', async (req, res) => {
+  try {
+    const { delta } = req.body
+    const goal = await Goal.findById(req.params.id)
+    if (!goal) return res.status(404).json({ error: 'not found' })
+    goal.progress = (goal.progress || 0) + (Number(delta) || 0)
+    await goal.save()
+    res.json(goal)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'server error' })
+  }
+})
+
 module.exports = router

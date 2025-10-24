@@ -7,7 +7,6 @@ try {
   // dev deps not installed; skip integration test
   console.warn('mongodb-memory-server not installed; auth.int.test will be skipped in this environment')
   module.exports = {}
-  return
 }
 
 const request = require('supertest')
