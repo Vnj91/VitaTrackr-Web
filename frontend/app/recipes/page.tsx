@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function RecipesPage(){
@@ -13,17 +13,50 @@ export default function RecipesPage(){
     // lightweight placeholder generator so UX is instant — we'll replace this with API wiring later
     const list = ings.split(/[.,\n]/).map(s=>s.trim()).filter(Boolean).slice(0,6)
     const title = list.length ? `${list[0]} & ${list.slice(1).join(', ')}` : 'Custom Recipe'
-    return `Recipe: ${title}\n\nIngredients:\n- ${list.join('\n- ')}\n\nInstructions:\n1) Combine ingredients.\n2) Season to taste.\n3) Cook until done.\n\nNotes: Goal - ${g || 'General'}`
+    // include simple note about profile preferences if present
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null
+    const allergies = user?.allergies || []
+    const conditions = user?.conditions || []
+    const target = user?.requiredCalories || null
+    let tail = `Notes: Goal - ${g || 'General'}`
+    if (target) tail += ` • Target Calories: ${target}`
+    if (allergies && allergies.length) tail += ` • Allergies: ${Array.isArray(allergies)?allergies.join(', '):allergies}`
+    if (conditions && conditions.length) tail += ` • Conditions: ${Array.isArray(conditions)?conditions.join(', '):conditions}`
+    return `Recipe: ${title}\n\nIngredients:\n- ${list.join('\n- ')}\n\nInstructions:\n1) Combine ingredients.\n2) Season to taste.\n3) Cook until done.\n\n${tail}`
   }
 
   const onGenerate = async (e?: React.FormEvent) => {
     e?.preventDefault()
     setLoading(true)
     setResult(null)
-    await new Promise(r=>setTimeout(r, 400))
+    // prefer backend AI if NODE backend proxy is reachable, otherwise local mock
+    try {
+      const NODE_HOST = process.env.NEXT_PUBLIC_NODE_BACKEND_URL || undefined
+      if (NODE_HOST) {
+        const payload = { ingredients: ingredients.split(/[,\n]/).map(s=>s.trim()).filter(Boolean), user: JSON.parse(localStorage.getItem('user')||'null'), targetCalories: Number(goal) || null, mealTime: 'any' }
+        const res = await fetch('/api/recipes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        const j = await res.json()
+        if (res.ok) {
+          setResult(JSON.stringify(j.ai || j, null, 2))
+          setLoading(false)
+          return
+        }
+      }
+    } catch (err) {
+      // fall back to mock
+    }
+    await new Promise(r=>setTimeout(r, 300))
     setResult(mockGenerate(ingredients, goal))
     setLoading(false)
   }
+
+  useEffect(()=>{
+    // prefill goal with profile target if present
+    try {
+      const user = JSON.parse(localStorage.getItem('user')||'null')
+      if (user?.requiredCalories) setGoal(String(user.requiredCalories))
+    } catch(e){}
+  },[])
 
   return (
     <div className="min-h-screen px-4 py-12 max-w-3xl mx-auto">

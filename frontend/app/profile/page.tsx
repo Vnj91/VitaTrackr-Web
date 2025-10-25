@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const { user, loading } = useAuthViewModel();
   const [name, setName] = useState("");
   const [allergies, setAllergies] = useState("");
+  const [conditions, setConditions] = useState("")
   const [saving, setSaving] = useState(false);
   const [heightCm, setHeightCm] = useState<number | ''>('')
   const [weightKg, setWeightKg] = useState<number | ''>('')
@@ -29,6 +30,7 @@ export default function ProfilePage() {
     if (user) {
       setName(user.name || "");
       setAllergies(Array.isArray(user.allergies) ? user.allergies.join(", ") : (user.allergies || ""));
+      setConditions(Array.isArray(user.conditions) ? user.conditions.join(", ") : (user.conditions || ""))
       setHeightCm(user.heightCm || '')
       setWeightKg(user.weightKg || '')
       setAge(user.age || '')
@@ -46,7 +48,8 @@ export default function ProfilePage() {
       const updatedUser = {
         ...user,
         name,
-        allergies: allergies.split(",").map(a => a.trim()).filter(Boolean)
+        allergies: allergies.split(",").map(a => a.trim()).filter(Boolean),
+        conditions: conditions.split(",").map(c => c.trim()).filter(Boolean)
       };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       toast("Profile updated!", "success");
@@ -78,7 +81,7 @@ export default function ProfilePage() {
   async function handleSaveProfile() {
     setSaving(true)
     try {
-      const body = { name, allergies: allergies.split(',').map(s=>s.trim()).filter(Boolean), heightCm, weightKg, age, sex, requiredCalories }
+  const body = { name, allergies: allergies.split(',').map(s=>s.trim()).filter(Boolean), conditions: conditions.split(',').map(s=>s.trim()).filter(Boolean), heightCm, weightKg, age, sex, requiredCalories }
       const res = await fetch(`/api/profile/${user?.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const j = await res.json()
       if (res.ok) {
@@ -175,6 +178,17 @@ export default function ProfilePage() {
               onBlur={() => autosaveField({ allergies: allergies.split(',').map(s=>s.trim()).filter(Boolean) })}
               disabled={loading || saving}
               placeholder="e.g. nuts, dairy"
+            />
+          </label>
+          <label className="block mt-3">
+            <span className="text-sm text-gray-600">Diseases / Conditions (comma separated)</span>
+            <input
+              className="mt-1 block w-full border rounded p-2"
+              value={conditions}
+              onChange={e => setConditions(e.target.value)}
+              onBlur={() => autosaveField({ conditions: conditions.split(',').map(s=>s.trim()).filter(Boolean) })}
+              disabled={loading || saving}
+              placeholder="e.g. diabetes, hypertension"
             />
           </label>
           <div className="mt-4 grid grid-cols-1 gap-3">
