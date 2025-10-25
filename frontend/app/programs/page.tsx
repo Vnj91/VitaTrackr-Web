@@ -46,7 +46,11 @@ function ProgramSubscribe({ id }: { id: string }){
         const m = JSON.parse(localStorage.getItem('vt:programSubs') || '{}')
         m[id] = next
         localStorage.setItem('vt:programSubs', JSON.stringify(m))
-      } catch(e){}
+        // ensure UI reflects the updated subscription state even when using localStorage
+        setSubscribed(next)
+      } catch(e){
+        // keep UI in a consistent state; optimistic update already applied below
+      }
     })()
   }
   return <button onClick={toggle} className={`px-3 py-2 rounded ${subscribed ? 'bg-green-600 text-white' : 'bg-gray-200 text-black'}`}>{subscribed ? 'Subscribed' : 'Subscribe'}</button>
