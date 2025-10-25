@@ -8,18 +8,37 @@ exports.generateRecipe = async (req, res) => {
 
     const prompt = `User Ingredients: ${Array.isArray(ingredients) ? ingredients.join(', ') : ingredients}\nAllergies: ${user?.allergies || 'none'}\nGoal: ${user?.goal || 'general'}\nTargetCalories: ${targetCalories || 'any'}\nMealTime: ${mealTime || 'any'}\n\nGenerate a healthy recipe that aims to hit TargetCalories for the meal time. Provide steps, cooking time, and nutrition info. Respond in JSON with title, ingredients[], steps[], nutrition{calories,protein,carbs,fat}`;
 
-    const aiResponse = await hfService.callHuggingFace(prompt);
+    // prefer OpenAI when configured, fall back to Hugging Face
+    let aiResponse = null
+    if (process.env.OPENAI_API_KEY) {
+      aiResponse = await hfService.callOpenAI(prompt)
+    } else {
+      aiResponse = await hfService.callHuggingFace(prompt);
+    }
 
-    // if possible, store a suggestion linked to the user
+    // try to normalize AI response: prefer structured object when possible
+    let normalized = aiResponse
     try {
-      const parsed = aiResponse?.raw ? aiResponse.raw : JSON.stringify(aiResponse)
+      if (aiResponse && aiResponse.raw && typeof aiResponse.raw === 'string') {
+        // try parsing raw as JSON, else attempt to extract JSON substring
+        try { normalized = JSON.parse(aiResponse.raw) } catch (e) {
+          const m = aiResponse.raw.match(/(\{[\s\S]*\})/)
+          if (m) {
+            try { normalized = JSON.parse(m[1]) } catch (e2) { /* leave as-is */ }
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+
+    // if possible, store a suggestion linked to the user using normalized fields
+    try {
       let suggestion = {
         userId: user?.id,
-        title: aiResponse?.title || aiResponse?.raw?.title || 'Suggested Recipe',
-        ingredients: aiResponse?.ingredients || [],
-        steps: aiResponse?.steps || [],
-        nutrition: aiResponse?.nutrition || {},
-        targetCalories: targetCalories || (aiResponse?.nutrition?.calories || null),
+        title: normalized?.title || aiResponse?.title || 'Suggested Recipe',
+        ingredients: normalized?.ingredients || aiResponse?.ingredients || [],
+        steps: normalized?.steps || aiResponse?.steps || [],
+        nutrition: normalized?.nutrition || aiResponse?.nutrition || {},
+        targetCalories: targetCalories || (normalized?.nutrition?.calories || aiResponse?.nutrition?.calories || null),
         mealTime: mealTime || null
       }
       // save if user exists
@@ -28,7 +47,7 @@ exports.generateRecipe = async (req, res) => {
       }
     } catch (e) { console.error('failed to save suggestion', e) }
 
-    return res.json({ ai: aiResponse });
+    return res.json({ ai: normalized });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'server error' });
