@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import dynamic from 'next/dynamic'
 const Modal = dynamic(()=>import('../../components/Modal'), { ssr: false })
+import WorkoutChart from '../../components/WorkoutChart'
 import { useAuthViewModel } from "../../viewmodels/useAuthViewModel";
 import { toast } from "../../components/Toast";
 
@@ -21,6 +22,8 @@ export default function ProfilePage() {
   const [suggestions, setSuggestions] = useState<any[]>([])
   const [targetCalories, setTargetCalories] = useState<number | ''>('')
   const [mealTime, setMealTime] = useState<string>('lunch')
+  const [calorieLogs, setCalorieLogs] = useState<{date:string, calories:number}[]>([])
+  const [todayCalories, setTodayCalories] = useState<number | ''>('')
 
   useEffect(() => {
     if (user) {
@@ -117,7 +120,26 @@ export default function ProfilePage() {
   const [suggestionModal, setSuggestionModal] = useState<any|null>(null)
   useEffect(()=>{
     try { const m = JSON.parse(localStorage.getItem('vt:lastMeals') || '[]'); setRecentMeals(Array.isArray(m)?m:[]) } catch(e){ setRecentMeals([]) }
+    try { const logs = JSON.parse(localStorage.getItem('vt:calorieLogs') || '[]'); setCalorieLogs(Array.isArray(logs)?logs:[]) } catch(e){ setCalorieLogs([]) }
   },[])
+
+  function saveCalorieLog(dateStr: string, calories: number) {
+    try {
+      const copy = [...calorieLogs.filter(l=>l.date!==dateStr), { date: dateStr, calories }]
+      copy.sort((a,b)=> new Date(a.date).getTime() - new Date(b.date).getTime())
+      localStorage.setItem('vt:calorieLogs', JSON.stringify(copy))
+      setCalorieLogs(copy)
+      toast('Calories logged', 'success')
+    } catch(e){ toast('Failed to save', 'error') }
+  }
+
+  function removeCalorieLog(dateStr:string){
+    try{
+      const copy = calorieLogs.filter(l=>l.date!==dateStr)
+      localStorage.setItem('vt:calorieLogs', JSON.stringify(copy))
+      setCalorieLogs(copy)
+    }catch(e){ toast('Failed to remove', 'error') }
+  }
 
   async function handleGenerateSuggestion() {
     try {
@@ -175,6 +197,44 @@ export default function ProfilePage() {
             </div>
             <div>
               <div className="text-sm muted">BMI: {bmi ?? '—'} • Required Calories: {requiredCalories ?? '—'}</div>
+            </div>
+
+            {/* Calories logging and chart */}
+            <div className="mt-4 p-3 border rounded bg-white">
+              <h3 className="font-medium">Daily Calories</h3>
+              <div className="flex gap-2 items-center mt-3">
+                <input type="number" className="p-2 border rounded w-40" placeholder="Calories today" value={todayCalories as any} onChange={e=>setTodayCalories(e.target.value?Number(e.target.value):'')} />
+                <button className="px-3 py-2 bg-indigo-600 text-white rounded" onClick={()=>{
+                  const today = new Date(); const iso = today.toISOString().slice(0,10);
+                  if (!todayCalories) return toast('Enter calories', 'error')
+                  saveCalorieLog(iso, Number(todayCalories))
+                  setTodayCalories('')
+                }}>Add / Update</button>
+                <button className="px-3 py-2 bg-gray-200 rounded" onClick={()=>{
+                  // quick fill with requiredCalories if available
+                  if (requiredCalories) setTodayCalories(requiredCalories)
+                }}>Use target</button>
+              </div>
+
+              <div className="mt-4">
+                <WorkoutChart data={calorieLogs.map(l=>({ date: l.date, calories: l.calories }))} requiredSeries={calorieLogs.map(l=>({ date: l.date, required: requiredCalories || 0 }))} />
+              </div>
+
+              {calorieLogs.length>0 && (
+                <div className="mt-3">
+                  <ul className="space-y-1">
+                    {calorieLogs.map(l=> (
+                      <li key={l.date} className="flex justify-between items-center p-2 border rounded">
+                        <div>{l.date} — {l.calories} kcal</div>
+                        <div className="flex gap-2">
+                          <button className="px-2 py-1 bg-gray-200 rounded" onClick={()=>{ setTodayCalories(l.calories); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Edit</button>
+                          <button className="px-2 py-1 bg-red-500 text-white rounded" onClick={()=>removeCalorieLog(l.date)}>Delete</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             <div className="mt-2 p-3 border rounded">
               <h3 className="font-medium">Recipe Suggestions</h3>
